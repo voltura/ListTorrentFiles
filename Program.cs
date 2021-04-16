@@ -10,19 +10,24 @@ namespace ListTorrentFiles
     internal class Program
     {
         private string torrentDir;
-        private readonly string downloadDir = @"E:\Downloads";
-        private readonly string moveToDir = @"E:\Downloads_Finished";
+        private string downloadDir;
+        private string moveToDir = @"E:\Downloads_Finished";
 
-        private static void Main()
+        private static void Main(string[] args)
         {
             Program p = new Program();
-            p.Run();
+            p.Run(args);
         }
 
-        private void Run()
+        private void Run(string[] args)
         {
             Console.WriteLine("Working...");
             torrentDir = GetFinishedTorrentsFolder();
+            downloadDir = GetDownloadDir();
+            if (args != null && args.Length > 0)
+            {
+                moveToDir = args[0];
+            }
             List<string> activeTorrentFiles = GetActiveTorrentFiles();
             List<string> activeTorrentFolders = GetActiveTorrentFolders();
             string[] allFiles = Directory.GetFiles(downloadDir, "*.*", SearchOption.TopDirectoryOnly);
@@ -35,6 +40,24 @@ namespace ListTorrentFiles
             MoveFinishedFolders(foldersNotActive);
             DeleteEmptyAndInactiveFolders(foldersNotActive);
             Console.WriteLine("Done.");
+        }
+
+        private string GetDownloadDir()
+        {
+            string folder = string.Empty;
+            var fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                @"qBitTorrent\qBitTorrent.ini");
+            if (!File.Exists(fileName)) return folder;
+            foreach (string line in File.ReadAllLines(fileName))
+            {
+                if (line.StartsWith(@"Downloads\SavePath", StringComparison.OrdinalIgnoreCase))
+                {
+                    folder = line.Split('=')[1].Replace('/', '\\').TrimEnd('\\');
+                    break;
+                }
+            }
+
+            return folder;
         }
 
         private static string GetFinishedTorrentsFolder()
