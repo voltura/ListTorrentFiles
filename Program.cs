@@ -10,6 +10,7 @@ namespace ListTorrentFiles
     internal class Program
     {
         private string torrentDir;
+        private string finishedTorrentDir;
         private string downloadDir;
         private string moveToDir = @"E:\Downloads_Finished";
 
@@ -22,7 +23,8 @@ namespace ListTorrentFiles
         private void Run(string[] args)
         {
             Console.WriteLine("Working...");
-            torrentDir = GetFinishedTorrentsFolder();
+            torrentDir = GetBT_backupFolder();
+            finishedTorrentDir = GetFinishedTorrentsFolder();
             downloadDir = GetDownloadDir();
             if (args != null && args.Length > 0)
             {
@@ -77,6 +79,13 @@ namespace ListTorrentFiles
 
             return folder;
         }
+
+        private static string GetBT_backupFolder()
+        {
+            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                @"qBitTorrent\BT_backup");
+            return folder;
+        }
         private void MoveFinishedFolders(List<string> foldersNotActive)
         {
             List<string> rssSavePaths = GetRssSavePaths();
@@ -85,7 +94,8 @@ namespace ListTorrentFiles
             {
                 if (torrentDir.Equals(folder, StringComparison.InvariantCultureIgnoreCase) ||
                     rssSavePaths.Contains(folder, StringComparer.OrdinalIgnoreCase) ||
-                    IsSymbolic(folder)) continue;
+                    IsSymbolic(folder) ||
+                    finishedTorrentDir.Equals(folder, StringComparison.InvariantCultureIgnoreCase)) continue;
                 string newFullPath = folder.Replace(downloadDir, moveToDir);
                 if (!Directory.Exists(moveToDir)) Directory.CreateDirectory(moveToDir);
                 Directory.Move(folder, newFullPath);
@@ -113,7 +123,8 @@ namespace ListTorrentFiles
             {
                 bool containsFiles = false;
                 if (torrentDir.Equals(dir, StringComparison.InvariantCultureIgnoreCase) ||
-                    rssSavePaths.Contains(dir, StringComparer.OrdinalIgnoreCase) || IsSymbolic(dir)) continue;
+                    rssSavePaths.Contains(dir, StringComparer.OrdinalIgnoreCase) || IsSymbolic(dir) ||
+                    finishedTorrentDir.Equals(dir, StringComparison.InvariantCultureIgnoreCase)) continue;
                 string[] files = Directory.GetFiles(dir, "*.*", SearchOption.AllDirectories);
                 foreach (string fileOrDir in files)
                 {
