@@ -82,7 +82,7 @@ namespace ListTorrentFiles
 
         private static string GetBT_backupFolder()
         {
-            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            string folder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                 @"qBitTorrent\BT_backup");
             return folder;
         }
