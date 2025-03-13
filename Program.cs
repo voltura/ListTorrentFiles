@@ -26,6 +26,10 @@ namespace MoveFinishedTorrentFiles
             torrentDir = GetBT_backupFolder();
             finishedTorrentDir = GetFinishedTorrentsFolder();
             downloadDir = GetDownloadDir();
+            if (string.IsNullOrEmpty(downloadDir))
+            {
+                return;
+            }
             if (args != null && args.Length > 0)
             {
                 moveToDir = args[0];
@@ -48,13 +52,13 @@ namespace MoveFinishedTorrentFiles
         {
             string folder = string.Empty;
             var fileName = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                @"qBitTorrent\qBitTorrent.ini");
+                @"qBitTorrent\qBitTorrent.ini"); //"C:\Users\joakim\AppData\Roaming\qBittorrent\qBittorrent.ini"
             if (!File.Exists(fileName)) return folder;
             foreach (string line in File.ReadAllLines(fileName))
             {
-                if (line.StartsWith(@"Downloads\SavePath", StringComparison.OrdinalIgnoreCase))
+                if (line.StartsWith(@"Session\DefaultSavePath", StringComparison.OrdinalIgnoreCase))
                 {
-                    folder = line.Split('=')[1].Replace('/', '\\').TrimEnd('\\');
+                    folder = line.Split('=')[1].Replace(@"\\", @"\").TrimEnd('\\');
                     break;
                 }
             }
@@ -70,9 +74,9 @@ namespace MoveFinishedTorrentFiles
             if (!File.Exists(fileName)) return folder;
             foreach (string line in File.ReadAllLines(fileName))
             {
-                if (line.StartsWith(@"Downloads\FinishedTorrentExportDir", StringComparison.OrdinalIgnoreCase))
+                if (line.StartsWith(@"Session\FinishedTorrentExportDirectory", StringComparison.OrdinalIgnoreCase))
                 {
-                    folder = line.Split('=')[1].Replace('/', '\\');
+                    folder = line.Split('=')[1].Replace(@"\\", @"\");
                     break;
                 }
             }
